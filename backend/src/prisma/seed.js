@@ -8,13 +8,13 @@ async function main() {
     data: [
       {
         title: 'Panquecas Simples',
-        ingredients: 'farinha, ovo, leite',
-        steps: 'Misturar e fritar',
+        ingredients: ['farinha', 'ovo', 'leite'],
+        steps: ['Misturar', 'fritar'],
       },
       {
         title: 'Salada Rápida',
-        ingredients: 'alface, tomate, azeite',
-        steps: 'Cortar e Misturar',
+        ingredients: ['alface', 'tomate', 'azeite'],
+        steps: ['Cortar', 'Misturar'],
       },
     ],
   });

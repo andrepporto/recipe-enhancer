@@ -4,9 +4,6 @@ export class CreateRecipeDto {
   @IsString()
   title: string;
 
-  @IsString()
-  description: string;
-
   @IsArray()
   @ArrayNotEmpty()
   ingredients: string[];

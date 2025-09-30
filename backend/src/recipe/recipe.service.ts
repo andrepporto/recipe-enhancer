@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
@@ -10,7 +10,6 @@ export class RecipeService {
   async create(data: CreateRecipeDto) {
     const recipeData = {
       title: data.title,
-      description: data.description,
       ingredients: data.ingredients,
       steps: data.steps,
     };
@@ -22,7 +21,13 @@ export class RecipeService {
   }
 
   async findOne(id: string) {
-    return this.prisma.recipe.findUnique({ where: { id } });
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id },
+    });
+    if (!recipe) {
+      throw new NotFoundException(`Recipe with id ${id} not found`);
+    }
+    return recipe;
   }
 
   async update(id: string, data: UpdateRecipeDto) {

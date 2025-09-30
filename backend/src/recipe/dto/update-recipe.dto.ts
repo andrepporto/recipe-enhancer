@@ -5,10 +5,6 @@ export class UpdateRecipeDto {
   @IsOptional()
   title: string;
 
-  @IsString()
-  @IsOptional()
-  description: string;
-
   @IsArray()
   @IsOptional()
   ingredients: string[];

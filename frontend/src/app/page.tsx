@@ -1,21 +1,17 @@
 "use client";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-}
 
-export default function RecipesPage() {
+export default function MainPage() {
   const router = useRouter();
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Receitas 🍲</h1>
       <button className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-      onClick={() => router.push("/recipes")}>
+      onClick={() => router.push("/recipes")}
+      >
         Testar router
       </button>
     </div>

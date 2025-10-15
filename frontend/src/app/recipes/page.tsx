@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Recipe {
@@ -10,6 +11,7 @@ interface Recipe {
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchRecipes() {
@@ -19,10 +21,12 @@ export default function RecipesPage() {
     }
     fetchRecipes();
   }, []);
-
+  console.log(recipes)
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Receitas 🍲</h1>
+      <button onClick={() => router.push('/recipes/new')}>Nova Receita</button>
+      <button onClick={() => router.push('/auth/login')}>LOGIN</button>
       <ul className="space-y-2">
         {recipes.map((recipe) => (
           <li

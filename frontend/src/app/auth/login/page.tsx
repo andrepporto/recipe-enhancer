@@ -12,7 +12,7 @@ export default function LoginPage() {
     const res = await fetch("http://localhost:3001/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // <- critical for cookie
+      credentials: "include",
       body: JSON.stringify(data),
     });
     if (res.ok) router.push("/recipes");

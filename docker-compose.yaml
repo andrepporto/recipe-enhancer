@@ -51,6 +51,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+    command: npm run dev
     depends_on:
       - backend
     networks:

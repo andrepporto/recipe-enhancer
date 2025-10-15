@@ -8,6 +8,7 @@ interface CreateRecipeForm {
   description: string;
   ingredients: string;
   steps: string;
+  userId: string;
 }
 
 export default function NewRecipePage() {
@@ -18,6 +19,7 @@ export default function NewRecipePage() {
     await fetch("http://localhost:3001/recipes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         title: data.title,
         description: data.description,
@@ -41,14 +43,6 @@ export default function NewRecipePage() {
           <label className="block text-sm font-medium">Título</label>
           <input
             {...register("title", { required: true })}
-            className="w-full border rounded p-2"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Descrição</label>
-          <textarea
-            {...register("description")}
             className="w-full border rounded p-2"
           />
         </div>

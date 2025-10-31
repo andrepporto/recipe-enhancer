@@ -2,6 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/api/globalFetch";
+import { useSession } from "@/api/useSession";
 
 interface CreateRecipeForm {
   title: string;
@@ -14,12 +16,15 @@ interface CreateRecipeForm {
 export default function NewRecipePage() {
   const { register, handleSubmit, reset } = useForm<CreateRecipeForm>();
   const router = useRouter();
+  const session = useSession();
 
   const onSubmit = async (data: CreateRecipeForm) => {
-    await fetch("http://localhost:3001/recipes", {
+    if (!session) {
+      alert("Você precisa estar logado para criar uma receita!");
+      return;
+    }
+    await apiFetch("/recipes", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({
         title: data.title,
         description: data.description,

@@ -1,6 +1,7 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/api/globalFetch";
 
 type Form = { email: string; name: string; password: string; };
 
@@ -9,13 +10,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   const onSubmit = async (data: Form) => {
-    const res = await fetch("http://localhost:3001/auth/register", {
+    const res = await apiFetch("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(data),
     });
-    if (res.ok) router.push("/auth/login");
+    if (res.success) router.push("/auth/login");
     else alert("Register failed");
   };
 

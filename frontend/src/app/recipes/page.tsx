@@ -1,27 +1,30 @@
 "use client";
 
+import { apiFetch } from "@/api/globalFetch";
+import { useApiSWR } from "@/api/useApiSWR";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-}
+import { mutate } from "swr";
 
 export default function RecipesPage() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+const { data: recipes = [], error, isLoading } = useApiSWR('/recipes');
   const router = useRouter();
 
-  useEffect(() => {
-    async function fetchRecipes() {
-      const res = await fetch("http://localhost:3001/recipes");
-      const data = await res.json();
-      setRecipes(data);
+  async function onDelete(id: string) {
+    mutate(
+      '/recipes',
+      recipes.filter((r) => r.id !== id),
+      false
+    );
+
+    try {
+      await apiFetch("/recipes/:id", { method: "DELETE" }, { id });
+      mutate('/recipes');
+    } catch (e) {
+      console.error(e);
+      mutate('/recipes');
     }
-    fetchRecipes();
-  }, []);
-  console.log(recipes)
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Receitas 🍲</h1>
@@ -34,8 +37,9 @@ export default function RecipesPage() {
             className="border rounded-lg p-4 shadow-sm hover:shadow-md transition"
           >
             <h2 className="text-lg font-semibold">{recipe.title}</h2>
-            <p className="text-gray-600">{recipe.description}</p>
-          </li>
+            <p className="text-gray-600">{recipe.ingredients}</p>
+            <button onClick={() => onDelete(recipe.id)}>DELETE</button>
+          </li>          
         ))}
       </ul>
     </div>

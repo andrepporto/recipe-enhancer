@@ -26,8 +26,8 @@ export class RecipeController {
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() data: CreateRecipeDto, @Req() req: AuthenticatedRequest) {
-    const user = req.user as any;
-    return this.recipeService.create(data, user.id);
+    const user = req.user;
+    return this.recipeService.create(data, user.userId);
   }
 
   @Get()
@@ -42,8 +42,8 @@ export class RecipeController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: UpdateRecipeDto) {
-    return this.recipeService.update(id, data);
+  update(@Param('id') id: string, @Body() data: UpdateRecipeDto, userId: string) {
+    return this.recipeService.update(id, data, userId);
   }
 
   @UseGuards(JwtAuthGuard)

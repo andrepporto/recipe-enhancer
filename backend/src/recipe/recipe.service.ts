@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
+import OpenAI from 'openai';
 
 @Injectable()
 export class RecipeService {
@@ -17,8 +18,8 @@ export class RecipeService {
     return this.prisma.recipe.create({ data: recipeData });
   }
 
-  async findAll() {
-    return this.prisma.recipe.findMany();
+  async findAll(skip = 0, take = 10) {
+    return this.prisma.recipe.findMany({skip, take});
   }
 
   async findOne(id: string) {
@@ -31,7 +32,11 @@ export class RecipeService {
     return recipe;
   }
 
-  async update(id: string, data: UpdateRecipeDto) {
+  async update(id: string, data: UpdateRecipeDto, userId: string) {
+    const recipe = await this.prisma.recipe.findUnique({ where: { id } });
+    if (recipe?.userId !== userId) {
+      throw new ForbiddenException('You can only edit your own recipes');
+    }
     return this.prisma.recipe.update({ where: { id }, data });
   }
 
@@ -63,6 +68,10 @@ export class RecipeService {
     });
 
     const content = completion.choices[0].message?.content ?? "{}";
-    return JSON.parse(content);
+    try {
+      return JSON.parse(content);
+    } catch {
+      throw new BadRequestException('Invalid response from OpenAI');
+    }  
   }
 }

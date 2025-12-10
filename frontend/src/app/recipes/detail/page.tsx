@@ -8,7 +8,7 @@ type Recipe = {
     ingredients: string[];
     steps: string[];
     tags?: string[];
-    [key: string]: any;
+    [key: string]: unknown;
 };
 
 export default function Page({
@@ -60,7 +60,8 @@ export default function Page({
             })
             .catch((err: Error) => {
                 if (!mounted) return;
-                setError(err.message || "Failed to load recipe.");
+                const message = err instanceof Error ? err.message : String(err);
+                setError(message || "Failed to load recipe.");
                 setRecipe(null);
             })
             .finally(() => {
@@ -73,8 +74,11 @@ export default function Page({
         };
     }, [id]);
 
-    const updateField = (path: string, value: any) => {
-        setRecipe((r) => (r ? { ...r, [path]: value } : r));
+    const updateField = <K extends keyof Recipe>(key: K, value: Recipe[K]) => {
+        setRecipe((r) => {
+            if (!r) return r;
+            return { ...r, [key]: value } as Recipe;
+        });
     };
 
     const updateArrayItem = (key: "ingredients" | "steps" | "tags", idx: number, value: string) => {
@@ -131,8 +135,9 @@ export default function Page({
             setRecipe(data);
             setSuccess("Saved.");
             // optionally navigate back or refresh
-        } catch (err: any) {
-            setError(err?.message || "Failed to save.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message || "Failed to save.");
         } finally {
             setSaving(false);
             // clear status after a bit
@@ -153,14 +158,19 @@ export default function Page({
                 throw new Error(text || res.statusText);
             }
             router.push("/recipes");
-        } catch (err: any) {
-            setError(err?.message || "Failed to delete.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            setError(message || "Failed to delete.");
             setSaving(false);
         }
     };
 
     if (loading) {
         return <div>Loading recipe...</div>;
+    }
+
+    if (!recipe) {
+        return <div>No recipe found.</div>;
     }
 
     if (error && !recipe) {
@@ -170,10 +180,6 @@ export default function Page({
                 <button onClick={() => router.back()}>Back</button>
             </div>
         );
-    }
-
-    if (!recipe) {
-        return <div>No recipe found.</div>;
     }
 
     return (

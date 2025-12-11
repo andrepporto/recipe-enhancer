@@ -42,8 +42,8 @@ export class RecipeController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: UpdateRecipeDto, userId: string) {
-    return this.recipeService.update(id, data, userId);
+  update(@Param('id') id: string, @Body() data: UpdateRecipeDto, @Req() req: AuthenticatedRequest) {
+    return this.recipeService.update(id, data, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

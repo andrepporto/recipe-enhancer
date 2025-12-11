@@ -1,12 +1,15 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import OpenAI from 'openai';
+import Redis from 'ioredis';
 
 @Injectable()
 export class RecipeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+     @Inject('REDIS_CLIENT') private redis: Redis) {}
 
   async create(data: CreateRecipeDto, userId: string) {
     const recipeData = {
@@ -19,7 +22,15 @@ export class RecipeService {
   }
 
   async findAll(skip = 0, take = 10) {
-    return this.prisma.recipe.findMany({skip, take});
+    const cacheKey = `recipes:${skip}:${take}`;
+    const cached = await this.redis.get(cacheKey);
+    
+    if (cached) return JSON.parse(cached);
+    
+    const recipes = await this.prisma.recipe.findMany({ skip, take });
+    await this.redis.setex(cacheKey, 300, JSON.stringify(recipes)); // 5min
+    
+    return recipes;
   }
 
   async findOne(id: string) {
@@ -47,6 +58,9 @@ export class RecipeService {
   async transformRecipe(id: string, instruction: string) {
     const recipe = await this.prisma.recipe.findUnique({ where: { id } });
     if (!recipe) throw new Error("Receita não encontrada");
+    if (process.env.OPENAI_API_KEY) {
+      throw new BadRequestException('openAI API KEY is required')
+    }
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const prompt = `

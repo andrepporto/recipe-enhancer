@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/api/globalFetch";
 
 type Recipe = {
     id: string;
@@ -122,16 +123,8 @@ export default function Page({
         }
 
         try {
-            const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(recipe),
-            });
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || res.statusText);
-            }
-            const data = await res.json();
+            const res = await apiFetch('/recipes/:id', {}, {id}) as  Recipe;
+            const data = await res;
             setRecipe(data);
             setSuccess("Saved.");
             // optionally navigate back or refresh
